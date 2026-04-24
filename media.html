@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>影像库 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html" class="active">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3>🎬 影像库</h3>
+    <p>电影 / 电视剧 / 短剧 / 纪录片 / 短视频 / 戏曲录像 —— 江苏文化的视听叙事作品</p>
+    <div><span class="pill" id="totalPill">— 条</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <label>关键词搜索</label>
+      <input type="text" id="q" placeholder="作品、导演、文化元素...">
+    </div>
+    <div>
+      <label>类型</label>
+      <select id="fType"><option value="">全部</option></select>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount">—</div>
+  <table class="data-table">
+    <thead><tr><th style="width:40px">#</th><th>作品名称</th><th>类型</th><th>导演/制作</th><th>年份</th><th>取景地/背景</th><th>文化元素</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="pagination" id="pager"></div>
+</div>
+
+<div class="footer">数据来源：项目影像库 · 数据快照</div>
+
+<script src="assets/common.js"></script>
+<script>
+(async () => {
+  const all = await loadJson('media');
+  document.getElementById('totalPill').textContent = `共 ${all.length} 条`;
+  const fType = document.getElementById('fType'), qEl = document.getElementById('q');
+  uniqueValues(all, 'media_type').forEach(v => fType.innerHTML += `<option>${v}</option>`);
+
+  let filtered = all, pager;
+  function doFilter() {
+    filtered = all.filter(x =>
+      (!fType.value || x.media_type === fType.value) &&
+      textMatch(x, qEl.value, ['name', 'director', 'culture_element'])
+    );
+    document.getElementById('resultCount').textContent = `筛选结果：${filtered.length} 条`;
+    pager = makePager(filtered.length, 25, render);
+    pager.go(1);
+  }
+  function render(page, size) {
+    const start = (page - 1) * size;
+    const rows = filtered.slice(start, start + size);
+    document.getElementById('tbody').innerHTML = rows.length === 0
+      ? `<tr><td colspan="7" class="empty-state">暂无匹配数据</td></tr>`
+      : rows.map((r, i) => `<tr>
+          <td style="color:#999">${start + i + 1}</td>
+          <td style="font-weight:600">${r.name || '—'}</td>
+          <td>${r.media_type ? `<span class="tag tag-orange">${r.media_type}</span>` : '—'}</td>
+          <td>${r.director || '—'}</td>
+          <td style="color:#666">${r.year || '—'}</td>
+          <td style="color:#666">${r.location || '—'}</td>
+          <td style="color:#666;font-size:12.5px">${(r.culture_element || '').slice(0, 60)}</td>
+        </tr>`).join('');
+  }
+  [qEl, fType].forEach(el => { el.oninput = doFilter; el.onchange = doFilter; });
+  doFilter();
+})().catch(err => { console.error(err); });
+</script>
+</body>
+</html>

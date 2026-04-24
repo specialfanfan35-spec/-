@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据可视化 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html" class="active">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3><span class="i-chart"></span> 数据可视化分析面板</h3>
+    <p>江苏地域文化跨媒介叙事数据库 —— 多维度交互式数据探索 | CiteSpace 式科学知识图谱分析</p>
+    <div id="heroPills"></div>
+  </div>
+
+  <!-- CiteSpace 式 -->
+  <h3 class="section-title"><span class="i-graph"></span> 科学知识图谱（CiteSpace 式分析）</h3>
+
+  <div class="viz-card">
+    <h5><span class="i-graph"></span> 关键词共现知识图谱 <span class="sub">节点大小 = 词频；连线 = 共现关系；颜色 = 聚类主题</span></h5>
+    <div id="kwGraphChart" style="height:640px;"></div>
+  </div>
+
+  <div class="row">
+    <div style="flex:1.3">
+      <div class="viz-card">
+        <h5>👥 作者合作网络图谱 <span class="sub">节点大小 = 发文数；同色 = 同地域</span></h5>
+        <div id="authorGraphChart" style="height:520px;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="viz-card">
+        <h5>📊 高频关键词 Top 25</h5>
+        <div id="kwBarChart" style="height:520px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div style="flex:1.3">
+      <div class="viz-card">
+        <h5>📅 时代 × 文本类型 演化分布</h5>
+        <div id="eraStackChart" style="height:440px;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="viz-card">
+        <h5>🔥 符号热度排行 Top 20</h5>
+        <div id="heatRankChart" style="height:440px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 基础统计 -->
+  <h3 class="section-title warm">📈 多维数据统计与关系</h3>
+
+  <div class="viz-card">
+    <h5>🧭 作者 → 地域 → 媒介类型 关系流向图</h5>
+    <div id="sankeyChart" style="height:520px;"></div>
+  </div>
+
+  <div class="viz-card">
+    <h5>🔗 文化符号关系图谱 <span class="sub">节点大小 = 符号热度值；按苏南/苏中/苏北/海洋圈等文化区聚类</span></h5>
+    <div id="graphChart" style="height:580px;"></div>
+  </div>
+
+  <div class="row cols-2">
+    <div><div class="viz-card"><h5>📖 文本库：媒介类型分布</h5><div id="textTypeChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>📍 文本库：地域分布</h5><div id="textRegionChart" style="height:360px;"></div></div></div>
+  </div>
+  <div class="row cols-2">
+    <div><div class="viz-card"><h5>🎬 影像库：影视类型分布</h5><div id="mediaTypeChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>⬢ 符号库：文化区分布</h5><div id="symbolZoneChart" style="height:360px;"></div></div></div>
+  </div>
+  <div class="row cols-2">
+    <div><div class="viz-card"><h5>📣 传播案例库：方向分布</h5><div id="caseDirectionChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>🎯 数据库总览</h5><div id="radarChart" style="height:360px;"></div></div></div>
+  </div>
+</div>
+
+<div class="footer">数据来源：项目数据库 · 静态快照</div>
+
+<script src="assets/echarts.min.js"></script>
+<script src="assets/common.js"></script>
+<script>
+const palette = ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d','#6dc8ec','#945fb9','#ff9845','#1a9850','#d73027','#4575b4','#fee08b','#66c2a5'];
+const csPalette = ['#d9534f','#5bc0de','#5cb85c','#f0ad4e','#9b59b6','#1abc9c','#3498db','#e67e22','#34495e','#95a5a6'];
+const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6', textStyle: { color: '#333', fontSize: 13 }, extraCssText: 'box-shadow: 0 6px 18px rgba(0,0,0,.12); border-radius: 8px;' };
+
+(async () => {
+  const [kg, data, totals] = await Promise.all([
+    loadJson('knowledge_graph'),
+    loadJson('stats'),
+    loadJson('totals'),
+  ]);
+
+  // ----- Hero pills -----
+  const t = data.totals;
+  document.getElementById('heroPills').innerHTML =
+    `<span class="pill">📖 文本库 ${t.text} 条</span>` +
+    `<span class="pill">🎬 影像库 ${t.media} 条</span>` +
+    `<span class="pill">⬢ 符号库 ${t.symbol} 条</span>` +
+    `<span class="pill">📣 案例库 ${t.case} 条</span>` +
+    `<span class="pill">📑 文献库 ${totals.literature} 篇</span>`;
+
+  // ========== 关键词共现知识图谱 ==========
+  const kwGraph = echarts.init(document.getElementById('kwGraphChart'));
+  kwGraph.setOption({
+    tooltip: { ...ttip, formatter: p => {
+      if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>词频: ${p.data.value}<br/>聚类: ${kg.kw_categories[p.data.category].name}`;
+      if (p.dataType === 'edge') return `${p.data.source} — ${p.data.target}<br/>共现 ${p.data.value} 次`;
+    }},
+    legend: [{ data: kg.kw_categories.map(c => c.name), top: 6, icon: 'circle', textStyle: { fontSize: 12, color: '#555' } }],
+    animationDuration: 1500,
+    series: [{
+      type: 'graph', layout: 'force',
+      force: { repulsion: 380, gravity: 0.06, edgeLength: [80, 230], friction: 0.55 },
+      roam: true, draggable: true, focusNodeAdjacency: true,
+      label: { show: true, position: 'right', fontSize: 12, color: '#222' },
+      lineStyle: { color: 'source', curveness: 0.25, opacity: 0.55 },
+      emphasis: { focus: 'adjacency', label: { fontSize: 15, fontWeight: 'bold' }, lineStyle: { width: 4, opacity: 1 } },
+      categories: kg.kw_categories,
+      data: kg.kw_nodes.map(n => ({ ...n, itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.15)' },
+        label: { fontSize: Math.max(11, Math.min(20, 10 + n.value * 0.35)) } })),
+      links: kg.kw_links,
+      color: csPalette
+    }]
+  });
+
+  // ========== 作者合作网络 ==========
+  const authGraph = echarts.init(document.getElementById('authorGraphChart'));
+  authGraph.setOption({
+    tooltip: { ...ttip, formatter: p => {
+      if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>发文量: ${p.data.value}<br/>地域: ${kg.auth_categories[p.data.category]?.name || '—'}`;
+      if (p.dataType === 'edge') return `${p.data.source} ↔ ${p.data.target}<br/>合作 ${p.data.value} 次`;
+    }},
+    legend: [{ data: kg.auth_categories.map(c => c.name), top: 6, icon: 'circle', textStyle: { fontSize: 11, color: '#555' } }],
+    series: [{
+      type: 'graph', layout: 'force',
+      force: { repulsion: 260, gravity: 0.08, edgeLength: [70, 180], friction: 0.6 },
+      roam: true, draggable: true, focusNodeAdjacency: true,
+      label: { show: true, position: 'right', fontSize: 12, color: '#1a3a5c' },
+      lineStyle: { color: '#aaa', curveness: 0.2, opacity: 0.5 },
+      emphasis: { focus: 'adjacency', label: { fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1, color: '#e8684a' } },
+      categories: kg.auth_categories,
+      data: kg.auth_nodes.map(n => ({ ...n, itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,.12)' } })),
+      links: kg.auth_links, color: palette
+    }]
+  });
+
+  // ========== 高频关键词 Top 25 ==========
+  const kwBar = echarts.init(document.getElementById('kwBarChart'));
+  const kwBarData = kg.kw_top_bar.slice().reverse();
+  kwBar.setOption({
+    tooltip: { ...ttip, trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '10%', top: '3%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } },
+    yAxis: { type: 'category', data: kwBarData.map(i => i.name), axisLabel: { fontSize: 11 }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{
+      type: 'bar',
+      data: kwBarData.map(i => ({ value: i.value,
+        itemStyle: { borderRadius: [0, 6, 6, 0], color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+          colorStops: [{offset:0,color:'#5ba3d9'},{offset:1,color:'#2d6a9f'}] } } })),
+      label: { show: true, position: 'right', fontSize: 11, color: '#2d6a9f', fontWeight: 'bold' },
+      animationDelay: idx => idx * 40
+    }]
+  });
+
+  // ========== 时代 × 文本类型 ==========
+  const eraChart = echarts.init(document.getElementById('eraStackChart'));
+  eraChart.setOption({
+    tooltip: { ...ttip, trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: { top: 0, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '14%', containLabel: true },
+    xAxis: { type: 'category', data: kg.era_list, axisLabel: { interval: 0, rotate: 25, fontSize: 11 } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } },
+    series: kg.era_series.map(s => ({ ...s, itemStyle: { borderRadius: [3, 3, 0, 0] } })),
+    color: palette
+  });
+
+  // ========== 符号热度 Top 20 ==========
+  const heatChart = echarts.init(document.getElementById('heatRankChart'));
+  const hrData = kg.heat_ranking.slice().reverse();
+  heatChart.setOption({
+    tooltip: { ...ttip, trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: params => { const p = params[0]; return `<b>${p.name}</b><br/>热度: <b>${p.value}</b><br/>文化区: ${hrData[p.dataIndex].zone}`; } },
+    grid: { left: '3%', right: '10%', top: '3%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } },
+    yAxis: { type: 'category', data: hrData.map(i => i.name), axisLabel: { fontSize: 11 }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar',
+      data: hrData.map(i => ({ value: i.heat,
+        itemStyle: { borderRadius: [0, 6, 6, 0], color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+          colorStops: [{offset:0,color:'#f6a04d'},{offset:1,color:'#e8684a'}] } } })),
+      label: { show: true, position: 'right', fontSize: 11, color: '#d73027', fontWeight: 'bold' },
+      animationDelay: idx => idx * 50 }]
+  });
+
+  // ========== 桑基图 ==========
+  const sankeyChart = echarts.init(document.getElementById('sankeyChart'));
+  sankeyChart.setOption({
+    tooltip: { ...ttip, trigger: 'item', triggerOn: 'mousemove' },
+    series: [{ type: 'sankey', layoutIterations: 32, nodeGap: 14, nodeWidth: 22,
+      emphasis: { focus: 'adjacency' },
+      lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.4 },
+      label: { fontSize: 13, color: '#333' },
+      itemStyle: { borderWidth: 0, borderRadius: 3 },
+      data: data.sankey_nodes, links: data.sankey_links, color: palette }]
+  });
+
+  // ========== 文化符号图谱 ==========
+  const graphChart = echarts.init(document.getElementById('graphChart'));
+  const gNodes = data.graph_nodes.map(n => ({
+    name: n.name, category: n.category, symbol: 'circle',
+    symbolSize: n.symbolSize || (n.value > 20 ? 55 : 22),
+    label: { show: true, fontSize: n.value > 20 ? 16 : 11, fontWeight: n.value > 20 ? 'bold' : 'normal', color: '#333' },
+    itemStyle: { shadowBlur: n.value > 20 ? 15 : 5, shadowColor: 'rgba(0,0,0,.15)' },
+    value: n.value
+  }));
+  graphChart.setOption({
+    tooltip: ttip,
+    legend: { data: data.graph_categories.map(c => c.name), top: 15, textStyle: { fontSize: 14, color: '#555' }, icon: 'circle' },
+    animationDuration: 2000,
+    series: [{ type: 'graph', layout: 'force',
+      force: { repulsion: 320, gravity: 0.08, edgeLength: [100, 250], friction: 0.6 },
+      roam: true, draggable: true, focusNodeAdjacency: true,
+      label: { show: true, position: 'right' },
+      lineStyle: { color: 'source', curveness: 0.3, width: 1.8, opacity: 0.6 },
+      emphasis: { focus: 'adjacency', lineStyle: { width: 5, opacity: 1 } },
+      categories: data.graph_categories, data: gNodes, links: data.graph_links,
+      color: ['#2d6a9f','#e8684a','#5ba3d9','#aaa'] }]
+  });
+
+  // ========== 小图 ==========
+  echarts.init(document.getElementById('textTypeChart')).setOption({
+    tooltip: { ...ttip, trigger: 'item' },
+    legend: { top: '5%', textStyle: { fontSize: 12 } },
+    series: [{ name: '文本类型', type: 'pie', radius: ['42%', '72%'],
+      itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 3 },
+      data: data.text_by_type.map(i => ({ value: i.count, name: i.text_type || '其他' })),
+      color: palette, animationType: 'scale', animationEasing: 'elasticOut' }]
+  });
+  echarts.init(document.getElementById('textRegionChart')).setOption({
+    tooltip: { ...ttip, trigger: 'axis' },
+    xAxis: { type: 'category', data: data.text_by_region.map(i => i.region),
+      axisLabel: { interval: 0, rotate: 30, fontSize: 12 } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } },
+    series: [{ data: data.text_by_region.map(i => i.count), type: 'bar',
+      itemStyle: { borderRadius: [6, 6, 0, 0],
+        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [{offset:0,color:'#5ba3d9'},{offset:1,color:'#2d6a9f'}] } } }]
+  });
+  const mtData = data.media_by_type.filter(i => i.count > 1).slice(0, 12);
+  echarts.init(document.getElementById('mediaTypeChart')).setOption({
+    tooltip: { ...ttip, trigger: 'axis' },
+    grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+    xAxis: { type: 'category', data: mtData.map(i => i.media_type || '其他'),
+      axisLabel: { interval: 0, rotate: 40, fontSize: 11 } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } },
+    series: [{ data: mtData.map(i => i.count), type: 'bar',
+      itemStyle: { borderRadius: [5, 5, 0, 0],
+        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [{offset:0,color:'#e8684a'},{offset:1,color:'#f6a04d'}] } } }]
+  });
+  echarts.init(document.getElementById('symbolZoneChart')).setOption({
+    tooltip: { ...ttip, trigger: 'item' },
+    legend: { top: 'bottom', textStyle: { fontSize: 12 } },
+    series: [{ name: '文化区', type: 'pie', radius: [25, 110], center: ['50%', '46%'],
+      roseType: 'area',
+      itemStyle: { borderRadius: 6, shadowBlur: 10, shadowColor: 'rgba(0,0,0,.08)' },
+      data: data.symbol_by_zone.map(i => ({ value: i.count, name: i.culture_zone || '其他' })),
+      color: ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d'] }]
+  });
+  echarts.init(document.getElementById('caseDirectionChart')).setOption({
+    tooltip: { ...ttip, trigger: 'item' },
+    legend: { top: '5%', textStyle: { fontSize: 12 } },
+    series: [{ name: '传播方向', type: 'pie', radius: ['38%', '68%'],
+      itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 3 },
+      data: data.case_by_direction.map(i => ({ value: i.count, name: i.direction || '其他' })),
+      color: palette }]
+  });
+  const mx = Math.max(t.text, t.media, t.symbol, t.case) * 1.2;
+  echarts.init(document.getElementById('radarChart')).setOption({
+    tooltip: ttip,
+    radar: { indicator: [
+        { name: '文本库', max: mx }, { name: '影像库', max: mx },
+        { name: '符号库', max: mx }, { name: '案例库', max: mx } ],
+      shape: 'circle',
+      splitArea: { areaStyle: { color: ['rgba(45,106,159,.03)','rgba(45,106,159,.06)','rgba(45,106,159,.09)','rgba(45,106,159,.12)'] } } },
+    series: [{ type: 'radar',
+      data: [{ value: [t.text, t.media, t.symbol, t.case], name: '数据量',
+        areaStyle: { color: 'rgba(45,106,159,.2)' },
+        lineStyle: { color: '#2d6a9f', width: 2 }, itemStyle: { color: '#2d6a9f' },
+        symbol: 'circle', symbolSize: 8 }] }]
+  });
+
+  window.addEventListener('resize', () => {
+    [kwGraph, authGraph, sankeyChart, graphChart].forEach(c => c.resize());
+  });
+})().catch(err => { console.error('Stats error:', err); document.body.insertAdjacentHTML('afterbegin', '<div style="padding:20px;background:#fee;color:#c00;text-align:center">数据加载失败: ' + err.message + '</div>'); });
+</script>
+</body>
+</html>

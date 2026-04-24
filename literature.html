@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文献库 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html" class="active">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3>📑 文献资料库</h3>
+    <p>项目相关学术论文、专著、研报、媒体报道等文献 —— 支持关键词检索与分类筛选</p>
+    <div><span class="pill" id="totalPill">— 篇</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <label>关键词搜索</label>
+      <input type="text" id="q" placeholder="标题、作者、标签...">
+    </div>
+    <div>
+      <label>一级分类</label>
+      <select id="fCat1"><option value="">全部</option></select>
+    </div>
+    <div>
+      <label>二级分类</label>
+      <select id="fCat2"><option value="">全部</option></select>
+    </div>
+    <div>
+      <label>文件类型</label>
+      <select id="fType"><option value="">全部</option></select>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount">—</div>
+  <table class="data-table">
+    <thead><tr><th style="width:40px">#</th><th>标题</th><th style="width:110px">作者</th><th style="width:110px">一级分类</th><th style="width:110px">二级分类</th><th style="width:60px">类型</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="pagination" id="pager"></div>
+
+  <!-- Mini visualization block -->
+  <h3 class="section-title" style="margin-top:40px"><span class="i-graph"></span> 文献关系图谱</h3>
+  <div class="viz-card">
+    <h5>🧭 作者 → 分类 关系流向图</h5>
+    <div id="litSankey" style="height:440px;"></div>
+  </div>
+  <div class="row">
+    <div style="flex:1.5">
+      <div class="viz-card">
+        <h5>🔗 作者-分类 关系网络</h5>
+        <div id="litGraph" style="height:440px;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="viz-card">
+        <h5>🍰 一级分类分布</h5>
+        <div id="litCat1" style="height:440px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">数据来源：项目文献资料库 · 数据快照</div>
+
+<script src="assets/echarts.min.js"></script>
+<script src="assets/common.js"></script>
+<script>
+const palette = ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d','#6dc8ec','#945fb9','#ff9845','#1a9850','#d73027','#4575b4','#66c2a5','#fee08b'];
+const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6', textStyle: { color: '#333', fontSize: 13 }, extraCssText: 'box-shadow: 0 6px 18px rgba(0,0,0,.12); border-radius: 8px;' };
+
+(async () => {
+  const [all, lsd] = await Promise.all([loadJson('literature'), loadJson('literature_stats')]);
+  document.getElementById('totalPill').textContent = `共 ${all.length} 篇`;
+  const fCat1 = document.getElementById('fCat1'),
+        fCat2 = document.getElementById('fCat2'),
+        fType = document.getElementById('fType'),
+        qEl = document.getElementById('q');
+  uniqueValues(all, 'category1').forEach(v => fCat1.innerHTML += `<option>${v}</option>`);
+  uniqueValues(all, 'category2').forEach(v => fCat2.innerHTML += `<option>${v}</option>`);
+  uniqueValues(all, 'file_type').forEach(v => fType.innerHTML += `<option>${v}</option>`);
+
+  let filtered = all, pager;
+  function doFilter() {
+    filtered = all.filter(x =>
+      (!fCat1.value || x.category1 === fCat1.value) &&
+      (!fCat2.value || x.category2 === fCat2.value) &&
+      (!fType.value || x.file_type === fType.value) &&
+      textMatch(x, qEl.value, ['title', 'author', 'tags'])
+    );
+    document.getElementById('resultCount').textContent = `筛选结果：${filtered.length} 篇`;
+    pager = makePager(filtered.length, 30, render);
+    pager.go(1);
+  }
+  function render(page, size) {
+    const start = (page - 1) * size;
+    const rows = filtered.slice(start, start + size);
+    document.getElementById('tbody').innerHTML = rows.length === 0
+      ? `<tr><td colspan="6" class="empty-state">暂无匹配文献</td></tr>`
+      : rows.map((r, i) => `<tr>
+          <td style="color:#999">${start + i + 1}</td>
+          <td style="font-weight:600">${r.title || '—'}</td>
+          <td>${r.author || '—'}</td>
+          <td>${r.category1 ? `<span class="tag tag-blue">${r.category1}</span>` : ''}</td>
+          <td>${r.category2 ? `<span class="tag tag-orange">${r.category2}</span>` : ''}</td>
+          <td><span class="tag ${r.file_type === 'PDF' ? 'tag-red' : 'tag-blue'}">${r.file_type || '—'}</span></td>
+        </tr>`).join('');
+  }
+  [qEl, fCat1, fCat2, fType].forEach(el => { el.oninput = doFilter; el.onchange = doFilter; });
+  doFilter();
+
+  // ---- Visualizations ----
+  echarts.init(document.getElementById('litSankey')).setOption({
+    tooltip: { ...ttip, trigger: 'item', triggerOn: 'mousemove' },
+    series: [{ type: 'sankey', layoutIterations: 32, nodeGap: 14, nodeWidth: 22,
+      emphasis: { focus: 'adjacency' },
+      lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.4 },
+      label: { fontSize: 13, color: '#333' },
+      data: lsd.sankey_nodes, links: lsd.sankey_links, color: palette }]
+  });
+
+  echarts.init(document.getElementById('litGraph')).setOption({
+    tooltip: ttip,
+    legend: { data: lsd.graph_categories.map(c => c.name), top: 10, icon: 'circle', textStyle: { fontSize: 12 } },
+    series: [{ type: 'graph', layout: 'force',
+      force: { repulsion: 280, gravity: 0.1, edgeLength: [80, 200], friction: 0.6 },
+      roam: true, draggable: true, focusNodeAdjacency: true,
+      label: { show: true, position: 'right', fontSize: 12 },
+      lineStyle: { color: 'source', curveness: 0.3, width: 1.5, opacity: 0.5 },
+      emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 1 } },
+      categories: lsd.graph_categories,
+      data: lsd.graph_nodes.map(n => ({ ...n,
+        itemStyle: { shadowBlur: n.value > 10 ? 10 : 4, shadowColor: 'rgba(0,0,0,.1)' },
+        label: { fontSize: n.value > 20 ? 14 : 10, fontWeight: n.value > 20 ? 'bold' : 'normal' } })),
+      links: lsd.graph_links, color: palette }]
+  });
+
+  echarts.init(document.getElementById('litCat1')).setOption({
+    tooltip: { ...ttip, trigger: 'item' },
+    series: [{ type: 'pie', radius: ['35%', '70%'],
+      itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+      label: { fontSize: 12 },
+      data: lsd.by_cat1.map(i => ({ value: i.count, name: i.category1 })),
+      color: palette, animationType: 'scale', animationEasing: 'elasticOut' }]
+  });
+})().catch(err => { console.error(err); document.body.insertAdjacentHTML('afterbegin', '<div style="padding:20px;background:#fee;color:#c00;text-align:center">加载失败: ' + err.message + '</div>'); });
+</script>
+</body>
+</html>

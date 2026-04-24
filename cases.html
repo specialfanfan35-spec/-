@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>传播案例库 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html" class="active">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3>📣 传播案例库</h3>
+    <p>江苏文化在国内外媒介中的典型传播案例 —— 传播机制、效果与国际认知度分析</p>
+    <div><span class="pill" id="totalPill">— 条</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <label>关键词搜索</label>
+      <input type="text" id="q" placeholder="案例名、主题、平台...">
+    </div>
+    <div>
+      <label>传播方向</label>
+      <select id="fDir"><option value="">全部</option></select>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount">—</div>
+  <table class="data-table">
+    <thead><tr><th style="width:40px">#</th><th>案例名称</th><th>方向</th><th>平台</th><th>主题</th><th>传播效果</th><th>经验/教训</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="pagination" id="pager"></div>
+</div>
+
+<div class="footer">数据来源：项目传播案例库 · 数据快照</div>
+
+<script src="assets/common.js"></script>
+<script>
+(async () => {
+  const all = await loadJson('cases');
+  document.getElementById('totalPill').textContent = `共 ${all.length} 条`;
+  const fDir = document.getElementById('fDir'), qEl = document.getElementById('q');
+  uniqueValues(all, 'direction').forEach(v => fDir.innerHTML += `<option>${v}</option>`);
+
+  let filtered = all, pager;
+  function doFilter() {
+    filtered = all.filter(x =>
+      (!fDir.value || x.direction === fDir.value) &&
+      textMatch(x, qEl.value, ['name', 'theme', 'platform', 'effect'])
+    );
+    document.getElementById('resultCount').textContent = `筛选结果：${filtered.length} 条`;
+    pager = makePager(filtered.length, 25, render);
+    pager.go(1);
+  }
+  function render(page, size) {
+    const start = (page - 1) * size;
+    const rows = filtered.slice(start, start + size);
+    document.getElementById('tbody').innerHTML = rows.length === 0
+      ? `<tr><td colspan="7" class="empty-state">暂无匹配数据</td></tr>`
+      : rows.map((r, i) => `<tr>
+          <td style="color:#999">${start + i + 1}</td>
+          <td style="font-weight:600">${r.name || '—'}</td>
+          <td>${r.direction ? `<span class="tag tag-pink">${r.direction}</span>` : '—'}</td>
+          <td>${r.platform || '—'}</td>
+          <td style="color:#555">${(r.theme || '').slice(0, 40)}</td>
+          <td style="color:#666;font-size:12.5px">${(r.effect || '').slice(0, 40)}</td>
+          <td style="color:#666;font-size:12px">${(r.lesson || '').slice(0, 40)}</td>
+        </tr>`).join('');
+  }
+  [qEl, fDir].forEach(el => { el.oninput = doFilter; el.onchange = doFilter; });
+  doFilter();
+})().catch(err => { console.error(err); });
+</script>
+</body>
+</html>

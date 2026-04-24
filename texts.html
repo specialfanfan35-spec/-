@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文本库 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html" class="active">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3>📖 文本库</h3>
+    <p>传统文学 / 网络文学 / 新闻报道 / 学术论文 / 游记 —— 江苏跨媒介文本资料汇总</p>
+    <div><span class="pill" id="totalPill">— 条</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <label>关键词搜索</label>
+      <input type="text" id="q" placeholder="作品名、作者、关键词...">
+    </div>
+    <div>
+      <label>文本类型</label>
+      <select id="fType"><option value="">全部</option></select>
+    </div>
+    <div>
+      <label>地域</label>
+      <select id="fRegion"><option value="">全部</option></select>
+    </div>
+    <div>
+      <label>分类</label>
+      <select id="fCategory"><option value="">全部</option></select>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount">—</div>
+  <table class="data-table">
+    <thead><tr><th style="width:40px">#</th><th>作品名称</th><th>作者</th><th>类型</th><th>分类</th><th>地域</th><th>关键词</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="pagination" id="pager"></div>
+</div>
+
+<div class="footer">数据来源：项目文本库 · 数据快照</div>
+
+<script src="assets/common.js"></script>
+<script>
+(async () => {
+  const all = await loadJson('texts');
+  document.getElementById('totalPill').textContent = `共 ${all.length} 条`;
+
+  const fType = document.getElementById('fType'),
+        fRegion = document.getElementById('fRegion'),
+        fCategory = document.getElementById('fCategory'),
+        qEl = document.getElementById('q');
+
+  uniqueValues(all, 'text_type').forEach(v => fType.innerHTML += `<option>${v}</option>`);
+  uniqueValues(all, 'region').forEach(v => fRegion.innerHTML += `<option>${v}</option>`);
+  uniqueValues(all, 'category').forEach(v => fCategory.innerHTML += `<option>${v}</option>`);
+
+  let filtered = all;
+  function doFilter() {
+    const q = qEl.value.trim();
+    filtered = all.filter(x =>
+      (!fType.value || x.text_type === fType.value) &&
+      (!fRegion.value || x.region === fRegion.value) &&
+      (!fCategory.value || x.category === fCategory.value) &&
+      textMatch(x, q, ['name', 'author', 'keywords'])
+    );
+    document.getElementById('resultCount').textContent = `筛选结果：${filtered.length} 条`;
+    pager = makePager(filtered.length, 25, render);
+    pager.go(1);
+  }
+  function render(page, size) {
+    const start = (page - 1) * size;
+    const rows = filtered.slice(start, start + size);
+    document.getElementById('tbody').innerHTML = rows.length === 0
+      ? `<tr><td colspan="7" class="empty-state">暂无匹配数据</td></tr>`
+      : rows.map((r, i) => `<tr>
+          <td style="color:#999">${start + i + 1}</td>
+          <td style="font-weight:600">${r.name || '—'}</td>
+          <td>${r.author || '—'}</td>
+          <td>${r.text_type ? `<span class="tag tag-blue">${r.text_type}</span>` : '—'}</td>
+          <td>${r.category ? `<span class="tag tag-orange">${r.category}</span>` : '—'}</td>
+          <td>${r.region ? `<span class="tag tag-green">${r.region}</span>` : '—'}</td>
+          <td style="color:#666;font-size:12.5px">${(r.keywords || '').slice(0, 60)}</td>
+        </tr>`).join('');
+  }
+  let pager;
+  [qEl, fType, fRegion, fCategory].forEach(el => el.oninput = doFilter);
+  [qEl, fType, fRegion, fCategory].forEach(el => el.onchange = doFilter);
+  doFilter();
+})().catch(err => { console.error(err); document.body.insertAdjacentHTML('afterbegin', '<div style="padding:20px;background:#fee;color:#c00;text-align:center">加载失败: ' + err.message + '</div>'); });
+</script>
+</body>
+</html>

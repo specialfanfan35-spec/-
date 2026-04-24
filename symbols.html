@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>符号库 · 江苏文化数据库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html" class="active">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="viz-hero">
+    <h3>⬢ 符号库（核心子库）</h3>
+    <p>基于文化符号学，提取苏南、苏中、苏北及海洋圈的代表性符号 · 量化文化热度</p>
+    <div><span class="pill" id="totalPill">— 条</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <label>关键词搜索</label>
+      <input type="text" id="q" placeholder="符号、文化内涵、媒介呈现...">
+    </div>
+    <div>
+      <label>文化区</label>
+      <select id="fZone"><option value="">全部</option></select>
+    </div>
+  </div>
+
+  <div class="result-count" id="resultCount">—</div>
+  <table class="data-table">
+    <thead><tr><th style="width:40px">#</th><th>符号名称</th><th>文化区</th><th>文化内涵</th><th>空间分布</th><th>媒介呈现</th><th style="width:80px">热度</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="pagination" id="pager"></div>
+</div>
+
+<div class="footer">数据来源：项目符号库 · 数据快照</div>
+
+<script src="assets/common.js"></script>
+<script>
+(async () => {
+  const all = await loadJson('symbols');
+  document.getElementById('totalPill').textContent = `共 ${all.length} 条`;
+  const fZone = document.getElementById('fZone'), qEl = document.getElementById('q');
+  uniqueValues(all, 'culture_zone').forEach(v => fZone.innerHTML += `<option>${v}</option>`);
+
+  let filtered = all, pager;
+  function doFilter() {
+    filtered = all.filter(x =>
+      (!fZone.value || x.culture_zone === fZone.value) &&
+      textMatch(x, qEl.value, ['name', 'meaning', 'media_presence', 'spatial'])
+    );
+    document.getElementById('resultCount').textContent = `筛选结果：${filtered.length} 条`;
+    pager = makePager(filtered.length, 25, render);
+    pager.go(1);
+  }
+  function render(page, size) {
+    const start = (page - 1) * size;
+    const rows = filtered.slice(start, start + size);
+    const heatColor = (h) => {
+      const n = parseInt(h) || 0;
+      if (n >= 9) return 'tag-red';
+      if (n >= 7) return 'tag-orange';
+      if (n >= 5) return 'tag-blue';
+      return 'tag-green';
+    };
+    document.getElementById('tbody').innerHTML = rows.length === 0
+      ? `<tr><td colspan="7" class="empty-state">暂无匹配数据</td></tr>`
+      : rows.map((r, i) => `<tr>
+          <td style="color:#999">${start + i + 1}</td>
+          <td style="font-weight:600">${r.name || '—'}</td>
+          <td>${r.culture_zone ? `<span class="tag tag-pink">${r.culture_zone}</span>` : '—'}</td>
+          <td style="color:#555;font-size:12.5px">${(r.meaning || '').slice(0, 50)}</td>
+          <td style="color:#666;font-size:12px">${(r.spatial || '').slice(0, 30)}</td>
+          <td style="color:#666;font-size:12px">${(r.media_presence || '').slice(0, 40)}</td>
+          <td><span class="tag ${heatColor(r.heat)}" style="font-weight:700">${r.heat || '—'}</span></td>
+        </tr>`).join('');
+  }
+  [qEl, fZone].forEach(el => { el.oninput = doFilter; el.onchange = doFilter; });
+  doFilter();
+})().catch(err => { console.error(err); });
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>江苏地域文化跨媒介叙事数据库 · 首页</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand"><span class="i-db"></span>江苏文化数据库</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="texts.html">文本库</a>
+    <a href="media.html">影像库</a>
+    <a href="symbols.html">符号库</a>
+    <a href="cases.html">传播案例库</a>
+    <a href="literature.html">文献库</a>
+    <a href="stats.html">数据可视化</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="container">
+    <h1>数字时代江苏文化形象跨媒介转化研究</h1>
+    <p>结构化存储江苏跨媒介文本资料，打通符号提取、媒介叙事与国际传播的全链条研究</p>
+  </div>
+</div>
+
+<div class="stat-grid" id="statGrid">
+  <div class="stat-card"><div class="num">—</div><div class="label">文本库 (条)</div></div>
+  <div class="stat-card"><div class="num">—</div><div class="label">影像库 (条)</div></div>
+  <div class="stat-card"><div class="num">—</div><div class="label">符号库 (条)</div></div>
+  <div class="stat-card"><div class="num">—</div><div class="label">传播案例库 (条)</div></div>
+  <div class="stat-card"><div class="num">—</div><div class="label">文献库 (篇)</div></div>
+</div>
+
+<div class="container">
+  <h2 class="section-title"><span class="i-db"></span> 五大核心子库</h2>
+  <div class="db-grid">
+    <div class="db-card">
+      <h3><span class="i-book"></span>文本库</h3>
+      <p>收录与江苏文化相关的传统文学、网络文学、新闻报道、学术论文、游记等文本资料，构建"文字形态"的江苏文化图谱。</p>
+      <a href="texts.html" class="btn">进入文本库 →</a>
+    </div>
+    <div class="db-card">
+      <h3><span class="i-film"></span>影像库</h3>
+      <p>收录电影、电视剧、短剧、纪录片、短视频、戏曲录像等影像资料，聚焦江苏文化的视听叙事表达。</p>
+      <a href="media.html" class="btn">进入影像库 →</a>
+    </div>
+    <div class="db-card">
+      <h3><span class="i-hex"></span>符号库（核心子库）</h3>
+      <p>基于文化符号学，提取并录入苏南、苏中、苏北三大文化区及海洋圈的代表性符号，量化文化热度。</p>
+      <a href="symbols.html" class="btn">进入符号库 →</a>
+    </div>
+    <div class="db-card">
+      <h3><span class="i-speaker"></span>传播案例库</h3>
+      <p>收录江苏文化在国内外媒介中的典型传播案例，用于分析传播机制、效果与国际认知度。</p>
+      <a href="cases.html" class="btn">进入案例库 →</a>
+    </div>
+    <div class="db-card">
+      <h3><span class="i-journal"></span>文献库</h3>
+      <p>收录项目相关的学术论文、专著、研报、媒体报道等文献资料，支持分类检索与标签筛选。</p>
+      <a href="literature.html" class="btn">进入文献库 →</a>
+    </div>
+    <div class="db-card">
+      <h3><span class="i-chart"></span>数据可视化</h3>
+      <p>CiteSpace 式科学知识图谱：关键词共现、作者合作网络、主题聚类，并含多维数据统计与关系流向。</p>
+      <a href="stats.html" class="btn">进入可视化 →</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">数字时代江苏文化形象跨媒介转化研究 · 数据库 · 静态发布版</div>
+
+<script src="assets/common.js"></script>
+<script>
+(async () => {
+  const t = await loadJson('totals');
+  const nums = [t.text, t.media, t.symbol, t.case, t.literature];
+  document.querySelectorAll('#statGrid .stat-card .num').forEach((el, i) => { el.textContent = nums[i]; });
+})();
+</script>
+</body>
+</html>
