@@ -26,7 +26,7 @@
     <p>江苏地域文化跨媒介叙事数据库 —— 多维度交互式数据探索 | CiteSpace 式科学知识图谱分析</p>
     <div id="heroPills"></div>
     <div class="viz-tip">
-      💡 <b>使用提示：</b>所有图表都支持 <b>滚轮缩放</b> / <b>拖拽平移</b> / <b>拖动节点</b>；图右上角按钮可<b>全屏查看</b>、<b>切换布局</b>（环形/力导向）、<b>一键保存高清图片（4× 分辨率）</b>。截图困难时，请直接点击 <b>📷 保存高清图</b>。
+      💡 <b>使用提示：</b>知识图谱默认采用 <b>环形布局</b>（节点均匀分布于圆周，永不挤成一团，截图最清晰）。可点击 <b>⇆ 切换布局</b> 切到力导向。需要单独保存图片时：<b>📷 保存高清图</b>（4× 分辨率，默认尺寸）；想要绝对清晰大图请用 <b>📥 导出超大图</b>（2400×1600 px，每个标签都看得见）。也可以 <b>⛶ 全屏</b> 后再截图。
     </div>
   </div>
 
@@ -39,9 +39,10 @@
       <button class="viz-btn" data-act="layout" data-target="kwGraphChart">⇆ 切换布局</button>
       <button class="viz-btn" data-act="reset" data-target="kwGraphChart">↺ 重置</button>
       <button class="viz-btn" data-act="save" data-target="kwGraphChart" data-name="关键词共现知识图谱">📷 保存高清图</button>
+      <button class="viz-btn primary" data-act="bigshot" data-target="kwGraphChart" data-name="关键词共现知识图谱">📥 导出超大图(2400×1600)</button>
       <button class="viz-btn" data-act="full" data-target="kwGraphCard">⛶ 全屏</button>
     </div>
-    <div id="kwGraphChart" class="chart-area" style="height:680px;"></div>
+    <div id="kwGraphChart" class="chart-area" style="height:820px;"></div>
   </div>
 
   <div class="row">
@@ -52,9 +53,10 @@
           <button class="viz-btn" data-act="layout" data-target="authorGraphChart">⇆ 切换布局</button>
           <button class="viz-btn" data-act="reset" data-target="authorGraphChart">↺ 重置</button>
           <button class="viz-btn" data-act="save" data-target="authorGraphChart" data-name="作者合作网络">📷 保存高清图</button>
+          <button class="viz-btn primary" data-act="bigshot" data-target="authorGraphChart" data-name="作者合作网络">📥 导出超大图</button>
           <button class="viz-btn" data-act="full" data-target="authorGraphCard">⛶ 全屏</button>
         </div>
-        <div id="authorGraphChart" class="chart-area" style="height:560px;"></div>
+        <div id="authorGraphChart" class="chart-area" style="height:660px;"></div>
       </div>
     </div>
     <div>
@@ -110,9 +112,10 @@
       <button class="viz-btn" data-act="layout" data-target="graphChart">⇆ 切换布局</button>
       <button class="viz-btn" data-act="reset" data-target="graphChart">↺ 重置</button>
       <button class="viz-btn" data-act="save" data-target="graphChart" data-name="文化符号关系图谱">📷 保存高清图</button>
+      <button class="viz-btn primary" data-act="bigshot" data-target="graphChart" data-name="文化符号关系图谱">📥 导出超大图</button>
       <button class="viz-btn" data-act="full" data-target="graphCard">⛶ 全屏</button>
     </div>
-    <div id="graphChart" class="chart-area" style="height:620px;"></div>
+    <div id="graphChart" class="chart-area" style="height:780px;"></div>
   </div>
 
   <div class="row cols-2">
@@ -138,13 +141,23 @@ const palette = ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d','#6dc8ec','#945fb9','#f
 const csPalette = ['#d9534f','#5bc0de','#5cb85c','#f0ad4e','#9b59b6','#1abc9c','#3498db','#e67e22','#34495e','#95a5a6'];
 const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6', textStyle: { color: '#333', fontSize: 13 }, extraCssText: 'box-shadow: 0 6px 18px rgba(0,0,0,.12); border-radius: 8px;' };
 
-/** 注册中心：id -> { chart, optionForce, optionCircular, current } */
+/** 注册中心：id -> { chart, optionForce, optionCircular, defaultLayout, current } */
 const chartRegistry = {};
-function registerChart(id, chart, optionForce, optionCircular) {
-  chartRegistry[id] = { chart, optionForce, optionCircular: optionCircular || null, current: 'force' };
+function registerChart(id, chart, optionForce, optionCircular, defaultLayout) {
+  chartRegistry[id] = {
+    chart,
+    optionForce: optionForce || null,
+    optionCircular: optionCircular || null,
+    defaultLayout: defaultLayout || (optionCircular ? 'circular' : 'force'),
+    current: defaultLayout || (optionCircular ? 'circular' : 'force')
+  };
 }
 
-/** 保存高清图（4× pixelRatio，白底） */
+function timestamp() {
+  return new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+}
+
+/** 保存高清图（4× pixelRatio，白底；保存当前可视画面） */
 function saveChartImage(id, name) {
   const item = chartRegistry[id];
   const chart = item ? item.chart : echarts.getInstanceByDom(document.getElementById(id));
@@ -157,18 +170,75 @@ function saveChartImage(id, name) {
   });
   const a = document.createElement('a');
   a.href = url;
-  a.download = (name || id) + '_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.png';
+  a.download = (name || id) + '_' + timestamp() + '.png';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-/** 重置缩放/平移 */
+/** 导出超大图（2400×1600 渲染到隐藏画布，强制环形布局，所有节点必然全部可见） */
+function exportBigShot(id, name) {
+  const item = chartRegistry[id];
+  if (!item) { saveChartImage(id, name); return; }
+
+  const W = 2400, H = 1600;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `position:fixed; left:-99999px; top:-99999px; width:${W}px; height:${H}px; background:#fff;`;
+  document.body.appendChild(wrap);
+  const tmp = echarts.init(wrap, null, { renderer: 'canvas', width: W, height: H });
+
+  // 复制选项；把图谱类强制改成 circular（保证 100% 全部节点可见，不重叠）；并放大字号以适应大画布
+  const baseOpt = item.optionCircular || item.optionForce;
+  if (!baseOpt) {
+    // 非图谱类，直接保存当前
+    tmp.dispose(); wrap.remove(); saveChartImage(id, name); return;
+  }
+  // 深拷贝 series 并覆盖样式
+  const opt = JSON.parse(JSON.stringify(baseOpt));
+  if (opt.series && opt.series[0]) {
+    const s = opt.series[0];
+    s.layout = 'circular';
+    s.circular = { rotateLabel: true };
+    if (s.label) {
+      s.label.show = true;
+      s.label.fontSize = 16;
+      s.label.distance = 8;
+      s.label.position = 'radial';
+    }
+    s.labelLayout = { hideOverlap: false };
+    // 节点放大
+    if (Array.isArray(s.data)) {
+      s.data = s.data.map(d => ({
+        ...d,
+        symbolSize: (d.symbolSize || 20) * 1.4,
+        label: { ...(d.label || {}), fontSize: Math.max(14, ((d.label && d.label.fontSize) || 14) + 2) }
+      }));
+    }
+  }
+  if (opt.legend) {
+    if (Array.isArray(opt.legend)) opt.legend.forEach(l => { l.textStyle = { ...(l.textStyle || {}), fontSize: 18 }; });
+    else opt.legend.textStyle = { ...(opt.legend.textStyle || {}), fontSize: 18 };
+  }
+
+  tmp.setOption(opt);
+  setTimeout(() => {
+    const url = tmp.getDataURL({ type: 'png', backgroundColor: '#ffffff', pixelRatio: 1 });
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (name || id) + '_超大图_' + timestamp() + '.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    tmp.dispose();
+    wrap.remove();
+  }, 300);
+}
+
+/** 重置缩放/平移（恢复默认布局） */
 function resetChart(id) {
   const item = chartRegistry[id];
   const chart = item ? item.chart : echarts.getInstanceByDom(document.getElementById(id));
   if (!chart) return;
-  if (item && item.optionForce) {
-    item.current = 'force';
-    chart.setOption(item.optionForce, true);
+  if (item && (item.optionForce || item.optionCircular)) {
+    item.current = item.defaultLayout;
+    const opt = item.current === 'force' ? item.optionForce : item.optionCircular;
+    if (opt) chart.setOption(opt, true);
   } else {
     chart.dispatchAction({ type: 'restore' });
   }
@@ -177,7 +247,7 @@ function resetChart(id) {
 /** 切换 力导向 / 环形 布局（仅图谱类） */
 function toggleLayout(id) {
   const item = chartRegistry[id];
-  if (!item || !item.optionCircular) return;
+  if (!item || !item.optionCircular || !item.optionForce) return;
   item.current = item.current === 'force' ? 'circular' : 'force';
   const opt = item.current === 'force' ? item.optionForce : item.optionCircular;
   item.chart.setOption(opt, true);
@@ -209,6 +279,7 @@ document.addEventListener('click', e => {
   const act = btn.dataset.act;
   const target = btn.dataset.target;
   if (act === 'save') saveChartImage(target, btn.dataset.name);
+  else if (act === 'bigshot') exportBigShot(target, btn.dataset.name);
   else if (act === 'reset') resetChart(target);
   else if (act === 'layout') toggleLayout(target);
   else if (act === 'full') toggleFullscreen(target);
@@ -252,8 +323,8 @@ document.addEventListener('click', e => {
     series: [{
       type: 'graph',
       layout: 'force',
-      // 大幅提升排斥力 + 较长边距，避免节点挤成一团
-      force: { repulsion: 900, gravity: 0.04, edgeLength: [120, 280], friction: 0.35, layoutAnimation: true },
+      // 极大排斥力 + 长边距 + 弱重力，节点充分散开
+      force: { repulsion: 2200, gravity: 0.03, edgeLength: [180, 380], friction: 0.3, layoutAnimation: true },
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
@@ -277,18 +348,19 @@ document.addEventListener('click', e => {
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
-      label: { show: true, position: 'radial', fontSize: 12, color: '#222', distance: 6 },
+      label: { show: true, position: 'radial', fontSize: 13, color: '#222', distance: 6 },
       labelLayout: { hideOverlap: true },
-      lineStyle: { color: 'source', curveness: 0.3, opacity: 0.5 },
-      emphasis: { focus: 'adjacency', label: { fontSize: 14, fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1 } },
+      lineStyle: { color: 'source', curveness: 0.3, opacity: 0.55, width: 1.2 },
+      emphasis: { focus: 'adjacency', label: { fontSize: 15, fontWeight: 'bold' }, lineStyle: { width: 3.5, opacity: 1 } },
       categories: kg.kw_categories,
       data: kwNodesBase,
       links: kg.kw_links,
       color: csPalette
     }]
   };
-  kwGraph.setOption(kwOptionForce);
-  registerChart('kwGraphChart', kwGraph, kwOptionForce, kwOptionCircular);
+  // 默认采用环形布局：节点均匀分布于圆周，永不挤成一团
+  kwGraph.setOption(kwOptionCircular);
+  registerChart('kwGraphChart', kwGraph, kwOptionForce, kwOptionCircular, 'circular');
 
   // ========== 作者合作网络 ==========
   const authGraph = echarts.init(document.getElementById('authorGraphChart'));
@@ -304,7 +376,7 @@ document.addEventListener('click', e => {
     series: [{
       type: 'graph',
       layout: 'force',
-      force: { repulsion: 700, gravity: 0.05, edgeLength: [100, 220], friction: 0.4 },
+      force: { repulsion: 1500, gravity: 0.04, edgeLength: [140, 320], friction: 0.32 },
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
@@ -328,7 +400,7 @@ document.addEventListener('click', e => {
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
-      label: { show: true, position: 'radial', fontSize: 11, color: '#1a3a5c', distance: 6 },
+      label: { show: true, position: 'radial', fontSize: 12, color: '#1a3a5c', distance: 6 },
       labelLayout: { hideOverlap: true },
       lineStyle: { color: '#aaa', curveness: 0.3, opacity: 0.5 },
       emphasis: { focus: 'adjacency', label: { fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1, color: '#e8684a' } },
@@ -338,8 +410,8 @@ document.addEventListener('click', e => {
       color: palette
     }]
   };
-  authGraph.setOption(authOptionForce);
-  registerChart('authorGraphChart', authGraph, authOptionForce, authOptionCircular);
+  authGraph.setOption(authOptionCircular);
+  registerChart('authorGraphChart', authGraph, authOptionForce, authOptionCircular, 'circular');
 
   // ========== 高频关键词 Top 25 ==========
   const kwBar = echarts.init(document.getElementById('kwBarChart'));
@@ -421,7 +493,7 @@ document.addEventListener('click', e => {
     series: [{
       type: 'graph',
       layout: 'force',
-      force: { repulsion: 800, gravity: 0.05, edgeLength: [140, 300], friction: 0.4 },
+      force: { repulsion: 2000, gravity: 0.03, edgeLength: [200, 420], friction: 0.32 },
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
@@ -443,16 +515,16 @@ document.addEventListener('click', e => {
       roam: true,
       draggable: true,
       focusNodeAdjacency: true,
-      label: { show: true, position: 'radial', distance: 6 },
+      label: { show: true, position: 'radial', distance: 6, fontSize: 13 },
       labelLayout: { hideOverlap: true },
-      lineStyle: { color: 'source', curveness: 0.3, width: 1.5, opacity: 0.5 },
+      lineStyle: { color: 'source', curveness: 0.3, width: 1.5, opacity: 0.55 },
       emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 1 } },
       categories: data.graph_categories, data: gNodes, links: data.graph_links,
       color: ['#2d6a9f','#e8684a','#5ba3d9','#aaa']
     }]
   };
-  graphChart.setOption(graphOptionForce);
-  registerChart('graphChart', graphChart, graphOptionForce, graphOptionCircular);
+  graphChart.setOption(graphOptionCircular);
+  registerChart('graphChart', graphChart, graphOptionForce, graphOptionCircular, 'circular');
 
   // ========== 小图 ==========
   const textTypeChart = echarts.init(document.getElementById('textTypeChart'));

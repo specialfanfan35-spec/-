@@ -178,6 +178,16 @@ a:hover { color: #1a3a5c; text-decoration: underline; }
   box-shadow: 0 3px 10px rgba(45,106,159,.25);
 }
 .viz-btn:active { transform: translateY(1px); }
+.viz-btn.primary {
+  background: linear-gradient(135deg, #e8684a, #f6a04d);
+  color: #fff;
+  border-color: #e8684a;
+}
+.viz-btn.primary:hover {
+  background: linear-gradient(135deg, #d9572f, #e8884a);
+  border-color: #d9572f;
+  box-shadow: 0 4px 14px rgba(232,104,74,.4);
+}
 
 /* ===== Viz tip box (in hero) ===== */
 .viz-tip {
