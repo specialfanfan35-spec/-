@@ -25,42 +25,69 @@
     <h3><span class="i-chart"></span> 数据可视化分析面板</h3>
     <p>江苏地域文化跨媒介叙事数据库 —— 多维度交互式数据探索 | CiteSpace 式科学知识图谱分析</p>
     <div id="heroPills"></div>
+    <div class="viz-tip">
+      💡 <b>使用提示：</b>所有图表都支持 <b>滚轮缩放</b> / <b>拖拽平移</b> / <b>拖动节点</b>；图右上角按钮可<b>全屏查看</b>、<b>切换布局</b>（环形/力导向）、<b>一键保存高清图片（4× 分辨率）</b>。截图困难时，请直接点击 <b>📷 保存高清图</b>。
+    </div>
   </div>
 
   <!-- CiteSpace 式 -->
   <h3 class="section-title"><span class="i-graph"></span> 科学知识图谱（CiteSpace 式分析）</h3>
 
-  <div class="viz-card">
+  <div class="viz-card" id="kwGraphCard">
     <h5><span class="i-graph"></span> 关键词共现知识图谱 <span class="sub">节点大小 = 词频；连线 = 共现关系；颜色 = 聚类主题</span></h5>
-    <div id="kwGraphChart" style="height:640px;"></div>
+    <div class="viz-tools">
+      <button class="viz-btn" data-act="layout" data-target="kwGraphChart">⇆ 切换布局</button>
+      <button class="viz-btn" data-act="reset" data-target="kwGraphChart">↺ 重置</button>
+      <button class="viz-btn" data-act="save" data-target="kwGraphChart" data-name="关键词共现知识图谱">📷 保存高清图</button>
+      <button class="viz-btn" data-act="full" data-target="kwGraphCard">⛶ 全屏</button>
+    </div>
+    <div id="kwGraphChart" class="chart-area" style="height:680px;"></div>
   </div>
 
   <div class="row">
     <div style="flex:1.3">
-      <div class="viz-card">
+      <div class="viz-card" id="authorGraphCard">
         <h5>👥 作者合作网络图谱 <span class="sub">节点大小 = 发文数；同色 = 同地域</span></h5>
-        <div id="authorGraphChart" style="height:520px;"></div>
+        <div class="viz-tools">
+          <button class="viz-btn" data-act="layout" data-target="authorGraphChart">⇆ 切换布局</button>
+          <button class="viz-btn" data-act="reset" data-target="authorGraphChart">↺ 重置</button>
+          <button class="viz-btn" data-act="save" data-target="authorGraphChart" data-name="作者合作网络">📷 保存高清图</button>
+          <button class="viz-btn" data-act="full" data-target="authorGraphCard">⛶ 全屏</button>
+        </div>
+        <div id="authorGraphChart" class="chart-area" style="height:560px;"></div>
       </div>
     </div>
     <div>
-      <div class="viz-card">
+      <div class="viz-card" id="kwBarCard">
         <h5>📊 高频关键词 Top 25</h5>
-        <div id="kwBarChart" style="height:520px;"></div>
+        <div class="viz-tools">
+          <button class="viz-btn" data-act="save" data-target="kwBarChart" data-name="高频关键词Top25">📷 保存高清图</button>
+          <button class="viz-btn" data-act="full" data-target="kwBarCard">⛶ 全屏</button>
+        </div>
+        <div id="kwBarChart" class="chart-area" style="height:560px;"></div>
       </div>
     </div>
   </div>
 
   <div class="row">
     <div style="flex:1.3">
-      <div class="viz-card">
+      <div class="viz-card" id="eraStackCard">
         <h5>📅 时代 × 文本类型 演化分布</h5>
-        <div id="eraStackChart" style="height:440px;"></div>
+        <div class="viz-tools">
+          <button class="viz-btn" data-act="save" data-target="eraStackChart" data-name="时代演化">📷 保存高清图</button>
+          <button class="viz-btn" data-act="full" data-target="eraStackCard">⛶ 全屏</button>
+        </div>
+        <div id="eraStackChart" class="chart-area" style="height:460px;"></div>
       </div>
     </div>
     <div>
-      <div class="viz-card">
+      <div class="viz-card" id="heatRankCard">
         <h5>🔥 符号热度排行 Top 20</h5>
-        <div id="heatRankChart" style="height:440px;"></div>
+        <div class="viz-tools">
+          <button class="viz-btn" data-act="save" data-target="heatRankChart" data-name="符号热度Top20">📷 保存高清图</button>
+          <button class="viz-btn" data-act="full" data-target="heatRankCard">⛶ 全屏</button>
+        </div>
+        <div id="heatRankChart" class="chart-area" style="height:460px;"></div>
       </div>
     </div>
   </div>
@@ -68,27 +95,37 @@
   <!-- 基础统计 -->
   <h3 class="section-title warm">📈 多维数据统计与关系</h3>
 
-  <div class="viz-card">
+  <div class="viz-card" id="sankeyCard">
     <h5>🧭 作者 → 地域 → 媒介类型 关系流向图</h5>
-    <div id="sankeyChart" style="height:520px;"></div>
+    <div class="viz-tools">
+      <button class="viz-btn" data-act="save" data-target="sankeyChart" data-name="桑基图">📷 保存高清图</button>
+      <button class="viz-btn" data-act="full" data-target="sankeyCard">⛶ 全屏</button>
+    </div>
+    <div id="sankeyChart" class="chart-area" style="height:560px;"></div>
   </div>
 
-  <div class="viz-card">
+  <div class="viz-card" id="graphCard">
     <h5>🔗 文化符号关系图谱 <span class="sub">节点大小 = 符号热度值；按苏南/苏中/苏北/海洋圈等文化区聚类</span></h5>
-    <div id="graphChart" style="height:580px;"></div>
+    <div class="viz-tools">
+      <button class="viz-btn" data-act="layout" data-target="graphChart">⇆ 切换布局</button>
+      <button class="viz-btn" data-act="reset" data-target="graphChart">↺ 重置</button>
+      <button class="viz-btn" data-act="save" data-target="graphChart" data-name="文化符号关系图谱">📷 保存高清图</button>
+      <button class="viz-btn" data-act="full" data-target="graphCard">⛶ 全屏</button>
+    </div>
+    <div id="graphChart" class="chart-area" style="height:620px;"></div>
   </div>
 
   <div class="row cols-2">
-    <div><div class="viz-card"><h5>📖 文本库：媒介类型分布</h5><div id="textTypeChart" style="height:360px;"></div></div></div>
-    <div><div class="viz-card"><h5>📍 文本库：地域分布</h5><div id="textRegionChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>📖 文本库：媒介类型分布</h5><div id="textTypeChart" class="chart-area" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>📍 文本库：地域分布</h5><div id="textRegionChart" class="chart-area" style="height:360px;"></div></div></div>
   </div>
   <div class="row cols-2">
-    <div><div class="viz-card"><h5>🎬 影像库：影视类型分布</h5><div id="mediaTypeChart" style="height:360px;"></div></div></div>
-    <div><div class="viz-card"><h5>⬢ 符号库：文化区分布</h5><div id="symbolZoneChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>🎬 影像库：影视类型分布</h5><div id="mediaTypeChart" class="chart-area" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>⬢ 符号库：文化区分布</h5><div id="symbolZoneChart" class="chart-area" style="height:360px;"></div></div></div>
   </div>
   <div class="row cols-2">
-    <div><div class="viz-card"><h5>📣 传播案例库：方向分布</h5><div id="caseDirectionChart" style="height:360px;"></div></div></div>
-    <div><div class="viz-card"><h5>🎯 数据库总览</h5><div id="radarChart" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>📣 传播案例库：方向分布</h5><div id="caseDirectionChart" class="chart-area" style="height:360px;"></div></div></div>
+    <div><div class="viz-card"><h5>🎯 数据库总览</h5><div id="radarChart" class="chart-area" style="height:360px;"></div></div></div>
   </div>
 </div>
 
@@ -101,6 +138,82 @@ const palette = ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d','#6dc8ec','#945fb9','#f
 const csPalette = ['#d9534f','#5bc0de','#5cb85c','#f0ad4e','#9b59b6','#1abc9c','#3498db','#e67e22','#34495e','#95a5a6'];
 const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6', textStyle: { color: '#333', fontSize: 13 }, extraCssText: 'box-shadow: 0 6px 18px rgba(0,0,0,.12); border-radius: 8px;' };
 
+/** 注册中心：id -> { chart, optionForce, optionCircular, current } */
+const chartRegistry = {};
+function registerChart(id, chart, optionForce, optionCircular) {
+  chartRegistry[id] = { chart, optionForce, optionCircular: optionCircular || null, current: 'force' };
+}
+
+/** 保存高清图（4× pixelRatio，白底） */
+function saveChartImage(id, name) {
+  const item = chartRegistry[id];
+  const chart = item ? item.chart : echarts.getInstanceByDom(document.getElementById(id));
+  if (!chart) return;
+  const url = chart.getDataURL({
+    type: 'png',
+    pixelRatio: 4,
+    backgroundColor: '#ffffff',
+    excludeComponents: ['toolbox']
+  });
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (name || id) + '_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/** 重置缩放/平移 */
+function resetChart(id) {
+  const item = chartRegistry[id];
+  const chart = item ? item.chart : echarts.getInstanceByDom(document.getElementById(id));
+  if (!chart) return;
+  if (item && item.optionForce) {
+    item.current = 'force';
+    chart.setOption(item.optionForce, true);
+  } else {
+    chart.dispatchAction({ type: 'restore' });
+  }
+}
+
+/** 切换 力导向 / 环形 布局（仅图谱类） */
+function toggleLayout(id) {
+  const item = chartRegistry[id];
+  if (!item || !item.optionCircular) return;
+  item.current = item.current === 'force' ? 'circular' : 'force';
+  const opt = item.current === 'force' ? item.optionForce : item.optionCircular;
+  item.chart.setOption(opt, true);
+}
+
+/** 全屏切换 */
+function toggleFullscreen(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  card.classList.toggle('fullscreen');
+  document.body.classList.toggle('viz-fs-locked', card.classList.contains('fullscreen'));
+  setTimeout(() => {
+    card.querySelectorAll('.chart-area').forEach(el => {
+      const inst = echarts.getInstanceByDom(el);
+      if (inst) inst.resize();
+    });
+  }, 50);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.viz-card.fullscreen').forEach(c => toggleFullscreen(c.id));
+  }
+});
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.viz-btn');
+  if (!btn) return;
+  const act = btn.dataset.act;
+  const target = btn.dataset.target;
+  if (act === 'save') saveChartImage(target, btn.dataset.name);
+  else if (act === 'reset') resetChart(target);
+  else if (act === 'layout') toggleLayout(target);
+  else if (act === 'full') toggleFullscreen(target);
+});
+
 (async () => {
   const [kg, data, totals] = await Promise.all([
     loadJson('knowledge_graph'),
@@ -108,7 +221,6 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
     loadJson('totals'),
   ]);
 
-  // ----- Hero pills -----
   const t = data.totals;
   document.getElementById('heroPills').innerHTML =
     `<span class="pill">📖 文本库 ${t.text} 条</span>` +
@@ -119,48 +231,115 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
 
   // ========== 关键词共现知识图谱 ==========
   const kwGraph = echarts.init(document.getElementById('kwGraphChart'));
-  kwGraph.setOption({
-    tooltip: { ...ttip, formatter: p => {
-      if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>词频: ${p.data.value}<br/>聚类: ${kg.kw_categories[p.data.category].name}`;
-      if (p.dataType === 'edge') return `${p.data.source} — ${p.data.target}<br/>共现 ${p.data.value} 次`;
-    }},
-    legend: [{ data: kg.kw_categories.map(c => c.name), top: 6, icon: 'circle', textStyle: { fontSize: 12, color: '#555' } }],
+  const kwNodesBase = kg.kw_nodes.map(n => ({
+    ...n,
+    itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.15)' },
+    label: {
+      show: true,
+      fontSize: Math.max(11, Math.min(20, 10 + n.value * 0.35)),
+      fontWeight: n.value >= 15 ? 'bold' : 'normal'
+    }
+  }));
+  const kwLegend = { data: kg.kw_categories.map(c => c.name), left: 'center', top: 6, icon: 'circle', textStyle: { fontSize: 12, color: '#555' } };
+  const kwTooltip = { ...ttip, formatter: p => {
+    if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>词频: ${p.data.value}<br/>聚类: ${kg.kw_categories[p.data.category].name}`;
+    if (p.dataType === 'edge') return `${p.data.source} — ${p.data.target}<br/>共现 ${p.data.value} 次`;
+  }};
+  const kwOptionForce = {
+    tooltip: kwTooltip,
+    legend: [kwLegend],
     animationDuration: 1500,
     series: [{
-      type: 'graph', layout: 'force',
-      force: { repulsion: 380, gravity: 0.06, edgeLength: [80, 230], friction: 0.55 },
-      roam: true, draggable: true, focusNodeAdjacency: true,
+      type: 'graph',
+      layout: 'force',
+      // 大幅提升排斥力 + 较长边距，避免节点挤成一团
+      force: { repulsion: 900, gravity: 0.04, edgeLength: [120, 280], friction: 0.35, layoutAnimation: true },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
       label: { show: true, position: 'right', fontSize: 12, color: '#222' },
+      labelLayout: { hideOverlap: true, moveOverlap: 'shiftY' },
       lineStyle: { color: 'source', curveness: 0.25, opacity: 0.55 },
       emphasis: { focus: 'adjacency', label: { fontSize: 15, fontWeight: 'bold' }, lineStyle: { width: 4, opacity: 1 } },
       categories: kg.kw_categories,
-      data: kg.kw_nodes.map(n => ({ ...n, itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.15)' },
-        label: { fontSize: Math.max(11, Math.min(20, 10 + n.value * 0.35)) } })),
+      data: kwNodesBase,
       links: kg.kw_links,
       color: csPalette
     }]
-  });
+  };
+  const kwOptionCircular = {
+    tooltip: kwTooltip,
+    legend: [kwLegend],
+    series: [{
+      type: 'graph',
+      layout: 'circular',
+      circular: { rotateLabel: true },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
+      label: { show: true, position: 'radial', fontSize: 12, color: '#222', distance: 6 },
+      labelLayout: { hideOverlap: true },
+      lineStyle: { color: 'source', curveness: 0.3, opacity: 0.5 },
+      emphasis: { focus: 'adjacency', label: { fontSize: 14, fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1 } },
+      categories: kg.kw_categories,
+      data: kwNodesBase,
+      links: kg.kw_links,
+      color: csPalette
+    }]
+  };
+  kwGraph.setOption(kwOptionForce);
+  registerChart('kwGraphChart', kwGraph, kwOptionForce, kwOptionCircular);
 
   // ========== 作者合作网络 ==========
   const authGraph = echarts.init(document.getElementById('authorGraphChart'));
-  authGraph.setOption({
-    tooltip: { ...ttip, formatter: p => {
-      if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>发文量: ${p.data.value}<br/>地域: ${kg.auth_categories[p.data.category]?.name || '—'}`;
-      if (p.dataType === 'edge') return `${p.data.source} ↔ ${p.data.target}<br/>合作 ${p.data.value} 次`;
-    }},
-    legend: [{ data: kg.auth_categories.map(c => c.name), top: 6, icon: 'circle', textStyle: { fontSize: 11, color: '#555' } }],
+  const authNodesBase = kg.auth_nodes.map(n => ({ ...n, itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,.12)' } }));
+  const authLegend = { data: kg.auth_categories.map(c => c.name), left: 'center', top: 6, icon: 'circle', textStyle: { fontSize: 11, color: '#555' } };
+  const authTooltip = { ...ttip, formatter: p => {
+    if (p.dataType === 'node') return `<b>${p.data.name}</b><br/>发文量: ${p.data.value}<br/>地域: ${kg.auth_categories[p.data.category]?.name || '—'}`;
+    if (p.dataType === 'edge') return `${p.data.source} ↔ ${p.data.target}<br/>合作 ${p.data.value} 次`;
+  }};
+  const authOptionForce = {
+    tooltip: authTooltip,
+    legend: [authLegend],
     series: [{
-      type: 'graph', layout: 'force',
-      force: { repulsion: 260, gravity: 0.08, edgeLength: [70, 180], friction: 0.6 },
-      roam: true, draggable: true, focusNodeAdjacency: true,
+      type: 'graph',
+      layout: 'force',
+      force: { repulsion: 700, gravity: 0.05, edgeLength: [100, 220], friction: 0.4 },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
       label: { show: true, position: 'right', fontSize: 12, color: '#1a3a5c' },
+      labelLayout: { hideOverlap: true, moveOverlap: 'shiftY' },
       lineStyle: { color: '#aaa', curveness: 0.2, opacity: 0.5 },
       emphasis: { focus: 'adjacency', label: { fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1, color: '#e8684a' } },
       categories: kg.auth_categories,
-      data: kg.auth_nodes.map(n => ({ ...n, itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,.12)' } })),
-      links: kg.auth_links, color: palette
+      data: authNodesBase,
+      links: kg.auth_links,
+      color: palette
     }]
-  });
+  };
+  const authOptionCircular = {
+    tooltip: authTooltip,
+    legend: [authLegend],
+    series: [{
+      type: 'graph',
+      layout: 'circular',
+      circular: { rotateLabel: true },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
+      label: { show: true, position: 'radial', fontSize: 11, color: '#1a3a5c', distance: 6 },
+      labelLayout: { hideOverlap: true },
+      lineStyle: { color: '#aaa', curveness: 0.3, opacity: 0.5 },
+      emphasis: { focus: 'adjacency', label: { fontWeight: 'bold' }, lineStyle: { width: 3, opacity: 1, color: '#e8684a' } },
+      categories: kg.auth_categories,
+      data: authNodesBase,
+      links: kg.auth_links,
+      color: palette
+    }]
+  };
+  authGraph.setOption(authOptionForce);
+  registerChart('authorGraphChart', authGraph, authOptionForce, authOptionCircular);
 
   // ========== 高频关键词 Top 25 ==========
   const kwBar = echarts.init(document.getElementById('kwBarChart'));
@@ -179,6 +358,7 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       animationDelay: idx => idx * 40
     }]
   });
+  registerChart('kwBarChart', kwBar);
 
   // ========== 时代 × 文本类型 ==========
   const eraChart = echarts.init(document.getElementById('eraStackChart'));
@@ -191,6 +371,7 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
     series: kg.era_series.map(s => ({ ...s, itemStyle: { borderRadius: [3, 3, 0, 0] } })),
     color: palette
   });
+  registerChart('eraStackChart', eraChart);
 
   // ========== 符号热度 Top 20 ==========
   const heatChart = echarts.init(document.getElementById('heatRankChart'));
@@ -208,6 +389,7 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       label: { show: true, position: 'right', fontSize: 11, color: '#d73027', fontWeight: 'bold' },
       animationDelay: idx => idx * 50 }]
   });
+  registerChart('heatRankChart', heatChart);
 
   // ========== 桑基图 ==========
   const sankeyChart = echarts.init(document.getElementById('sankeyChart'));
@@ -220,6 +402,7 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       itemStyle: { borderWidth: 0, borderRadius: 3 },
       data: data.sankey_nodes, links: data.sankey_links, color: palette }]
   });
+  registerChart('sankeyChart', sankeyChart);
 
   // ========== 文化符号图谱 ==========
   const graphChart = echarts.init(document.getElementById('graphChart'));
@@ -230,22 +413,50 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
     itemStyle: { shadowBlur: n.value > 20 ? 15 : 5, shadowColor: 'rgba(0,0,0,.15)' },
     value: n.value
   }));
-  graphChart.setOption({
+  const graphLegend = { data: data.graph_categories.map(c => c.name), top: 15, textStyle: { fontSize: 14, color: '#555' }, icon: 'circle' };
+  const graphOptionForce = {
     tooltip: ttip,
-    legend: { data: data.graph_categories.map(c => c.name), top: 15, textStyle: { fontSize: 14, color: '#555' }, icon: 'circle' },
+    legend: graphLegend,
     animationDuration: 2000,
-    series: [{ type: 'graph', layout: 'force',
-      force: { repulsion: 320, gravity: 0.08, edgeLength: [100, 250], friction: 0.6 },
-      roam: true, draggable: true, focusNodeAdjacency: true,
+    series: [{
+      type: 'graph',
+      layout: 'force',
+      force: { repulsion: 800, gravity: 0.05, edgeLength: [140, 300], friction: 0.4 },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
       label: { show: true, position: 'right' },
+      labelLayout: { hideOverlap: true, moveOverlap: 'shiftY' },
       lineStyle: { color: 'source', curveness: 0.3, width: 1.8, opacity: 0.6 },
       emphasis: { focus: 'adjacency', lineStyle: { width: 5, opacity: 1 } },
       categories: data.graph_categories, data: gNodes, links: data.graph_links,
-      color: ['#2d6a9f','#e8684a','#5ba3d9','#aaa'] }]
-  });
+      color: ['#2d6a9f','#e8684a','#5ba3d9','#aaa']
+    }]
+  };
+  const graphOptionCircular = {
+    tooltip: ttip,
+    legend: graphLegend,
+    series: [{
+      type: 'graph',
+      layout: 'circular',
+      circular: { rotateLabel: true },
+      roam: true,
+      draggable: true,
+      focusNodeAdjacency: true,
+      label: { show: true, position: 'radial', distance: 6 },
+      labelLayout: { hideOverlap: true },
+      lineStyle: { color: 'source', curveness: 0.3, width: 1.5, opacity: 0.5 },
+      emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 1 } },
+      categories: data.graph_categories, data: gNodes, links: data.graph_links,
+      color: ['#2d6a9f','#e8684a','#5ba3d9','#aaa']
+    }]
+  };
+  graphChart.setOption(graphOptionForce);
+  registerChart('graphChart', graphChart, graphOptionForce, graphOptionCircular);
 
   // ========== 小图 ==========
-  echarts.init(document.getElementById('textTypeChart')).setOption({
+  const textTypeChart = echarts.init(document.getElementById('textTypeChart'));
+  textTypeChart.setOption({
     tooltip: { ...ttip, trigger: 'item' },
     legend: { top: '5%', textStyle: { fontSize: 12 } },
     series: [{ name: '文本类型', type: 'pie', radius: ['42%', '72%'],
@@ -253,7 +464,10 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       data: data.text_by_type.map(i => ({ value: i.count, name: i.text_type || '其他' })),
       color: palette, animationType: 'scale', animationEasing: 'elasticOut' }]
   });
-  echarts.init(document.getElementById('textRegionChart')).setOption({
+  registerChart('textTypeChart', textTypeChart);
+
+  const textRegionChart = echarts.init(document.getElementById('textRegionChart'));
+  textRegionChart.setOption({
     tooltip: { ...ttip, trigger: 'axis' },
     xAxis: { type: 'category', data: data.text_by_region.map(i => i.region),
       axisLabel: { interval: 0, rotate: 30, fontSize: 12 } },
@@ -263,8 +477,11 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
         color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [{offset:0,color:'#5ba3d9'},{offset:1,color:'#2d6a9f'}] } } }]
   });
+  registerChart('textRegionChart', textRegionChart);
+
   const mtData = data.media_by_type.filter(i => i.count > 1).slice(0, 12);
-  echarts.init(document.getElementById('mediaTypeChart')).setOption({
+  const mediaTypeChart = echarts.init(document.getElementById('mediaTypeChart'));
+  mediaTypeChart.setOption({
     tooltip: { ...ttip, trigger: 'axis' },
     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
     xAxis: { type: 'category', data: mtData.map(i => i.media_type || '其他'),
@@ -275,7 +492,10 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
         color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [{offset:0,color:'#e8684a'},{offset:1,color:'#f6a04d'}] } } }]
   });
-  echarts.init(document.getElementById('symbolZoneChart')).setOption({
+  registerChart('mediaTypeChart', mediaTypeChart);
+
+  const symbolZoneChart = echarts.init(document.getElementById('symbolZoneChart'));
+  symbolZoneChart.setOption({
     tooltip: { ...ttip, trigger: 'item' },
     legend: { top: 'bottom', textStyle: { fontSize: 12 } },
     series: [{ name: '文化区', type: 'pie', radius: [25, 110], center: ['50%', '46%'],
@@ -284,7 +504,10 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       data: data.symbol_by_zone.map(i => ({ value: i.count, name: i.culture_zone || '其他' })),
       color: ['#2d6a9f','#e8684a','#5ba3d9','#f6a04d'] }]
   });
-  echarts.init(document.getElementById('caseDirectionChart')).setOption({
+  registerChart('symbolZoneChart', symbolZoneChart);
+
+  const caseDirectionChart = echarts.init(document.getElementById('caseDirectionChart'));
+  caseDirectionChart.setOption({
     tooltip: { ...ttip, trigger: 'item' },
     legend: { top: '5%', textStyle: { fontSize: 12 } },
     series: [{ name: '传播方向', type: 'pie', radius: ['38%', '68%'],
@@ -292,8 +515,11 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
       data: data.case_by_direction.map(i => ({ value: i.count, name: i.direction || '其他' })),
       color: palette }]
   });
+  registerChart('caseDirectionChart', caseDirectionChart);
+
   const mx = Math.max(t.text, t.media, t.symbol, t.case) * 1.2;
-  echarts.init(document.getElementById('radarChart')).setOption({
+  const radarChart = echarts.init(document.getElementById('radarChart'));
+  radarChart.setOption({
     tooltip: ttip,
     radar: { indicator: [
         { name: '文本库', max: mx }, { name: '影像库', max: mx },
@@ -306,9 +532,10 @@ const ttip = { backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#d0dae6',
         lineStyle: { color: '#2d6a9f', width: 2 }, itemStyle: { color: '#2d6a9f' },
         symbol: 'circle', symbolSize: 8 }] }]
   });
+  registerChart('radarChart', radarChart);
 
   window.addEventListener('resize', () => {
-    [kwGraph, authGraph, sankeyChart, graphChart].forEach(c => c.resize());
+    Object.values(chartRegistry).forEach(({ chart }) => chart.resize());
   });
 })().catch(err => { console.error('Stats error:', err); document.body.insertAdjacentHTML('afterbegin', '<div style="padding:20px;background:#fee;color:#c00;text-align:center">数据加载失败: ' + err.message + '</div>'); });
 </script>

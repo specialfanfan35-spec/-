@@ -132,9 +132,11 @@ a:hover { color: #1a3a5c; text-decoration: underline; }
   font-size: 16px;
   font-weight: 700;
   margin: 0 0 14px;
+  padding-right: 240px;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .viz-card h5 i { color: #2d6a9f; }
 .viz-card h5 .sub {
@@ -142,6 +144,87 @@ a:hover { color: #1a3a5c; text-decoration: underline; }
   color: #888;
   font-weight: normal;
   margin-left: 10px;
+}
+
+/* ===== Viz toolbar ===== */
+.viz-tools {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 60%;
+}
+.viz-btn {
+  background: #f5f8fc;
+  border: 1px solid #d0dae6;
+  color: #2d6a9f;
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.viz-btn:hover {
+  background: #2d6a9f;
+  color: #fff;
+  border-color: #2d6a9f;
+  box-shadow: 0 3px 10px rgba(45,106,159,.25);
+}
+.viz-btn:active { transform: translateY(1px); }
+
+/* ===== Viz tip box (in hero) ===== */
+.viz-tip {
+  background: rgba(255,255,255,.16);
+  border-left: 3px solid #ffd66e;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #fff;
+}
+.viz-tip b { color: #ffd66e; }
+
+/* ===== Fullscreen mode for viz-card ===== */
+body.viz-fs-locked { overflow: hidden; }
+.viz-card.fullscreen {
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0 !important;
+  border-radius: 0;
+  z-index: 10000;
+  padding: 24px 28px;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.viz-card.fullscreen h5 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
+}
+.viz-card.fullscreen .chart-area {
+  flex: 1 1 auto;
+  height: 100% !important;
+  min-height: 0;
+}
+.viz-card.fullscreen .viz-tools {
+  top: 18px;
+  right: 22px;
+}
+.viz-card.fullscreen .viz-btn {
+  font-size: 13px;
+  padding: 7px 14px;
 }
 .viz-hero {
   background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 60%, #5ba3d9 100%);
